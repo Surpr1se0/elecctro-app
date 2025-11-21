@@ -5,6 +5,8 @@ import Vision from "@hapi/vision";
 import HapiSwagger from "hapi-swagger";
 import HapiDBConnect from "hapi-plugin-pg";
 
+import { db } from "./db/db.js";
+
 const init = async () => {
   const server = Hapi.server({
     port: 3000,
