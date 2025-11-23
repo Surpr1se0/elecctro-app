@@ -3,33 +3,39 @@ import Inert from "@hapi/inert";
 import Vision from "@hapi/vision";
 import HapiSwagger from "hapi-swagger";
 
-import { setupRoutes } from "./routes/routes.js"
+import { setupRoutes } from "./routes/routes.js";
 
 const init = async () => {
   const server = Hapi.server({
     port: 3000,
     host: "localhost",
+    routes: {
+      cors: {
+        origin: ["http://localhost:5173"], // react
+        additionalHeaders: ["cache-control", "x-request-with"],
+      },
+    },
   });
 
-  // Setup swagger 
+  // Setup swagger
   const swaggerOptions = {
     info: {
-      title: 'Test API documentation',
-      version: '1.0.0',
+      title: "Test API documentation",
+      version: "1.0.0",
     },
-    documentationPath: '/docs' 
+    documentationPath: "/docs",
   };
 
   await server.register([
     Inert,
     Vision,
     {
-      plugin: HapiSwagger, 
-      options: swaggerOptions
-    }
+      plugin: HapiSwagger,
+      options: swaggerOptions,
+    },
   ]);
 
-  // Register API routes 
+  // Register API routes
   setupRoutes(server);
 
   await server.start();
