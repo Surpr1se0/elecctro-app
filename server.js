@@ -5,7 +5,7 @@ import Vision from "@hapi/vision";
 import HapiSwagger from "hapi-swagger";
 import HapiDBConnect from "hapi-plugin-pg";
 
-import { db } from "./db/db.js";
+import { setupRoutes } from "./routes/routes.js"
 
 const init = async () => {
   const server = Hapi.server({
@@ -13,13 +13,7 @@ const init = async () => {
     host: "localhost",
   });
 
-  server.route({
-    method: "GET",
-    path: "/",
-    handler: (request, response) => {
-      return "Hello World!";
-    },
-  });
+  setupRoutes(server);
 
   await server.start();
   console.log("Server running on %s", server.info.uri);
