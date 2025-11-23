@@ -107,10 +107,65 @@ export function setupRoutes(server) {
   });
 
 
+  // PATCH /todo/{id}
+  server.route({
+    method: 'PATCH',
+    path: '/todo/{id}',
+    options: {
+      description: 'Edit an item on the todo list',
+      notes: 'Edit an item, referenced by the id using the URL parameter {id}', 
+      tags: ['api'],
+      validate: {
+        params: todoIdParamsSchema,
+        failAction: (request, h, err) => 
+          h
+            .response({error: 'Invalid request', details: err.details})
+            .code(400)
+            .takeover()
+      }
+    },
+    handler: async(request, h) => {
+      const {id} = request.params;
+      const {state, description} = request.payload; 
+
+      const existing = await db('todos')
+        .where({id})
+        .first();
+
+      if (!existing){
+        return h.response({error: 'Item is not found'}).code(400);
+      }
+
+      if (description !== undefined && existing.state === 'COMPLETE') {
+        return h
+        .response({error: 'Cannot change description of a COMPLETE item'})
+        .code(400);
+      }
+
+      const updateData = {};
+
+      if(description !== undefined){
+        updateData.description = description;
+      } 
+
+      if (state !== undefined){
+        updateData.state = state;
+      }
+
+      const [updated] = await db('todos')
+        .where({id})
+        .update(updateData)
+        .returning(['id', 'state', 'description', 'created_at', 'completed_at']);
+
+      return h.response(mapTodoRow(updated)).code(200);
+    }
+  })
+
+
   // DELETE -- /todo/{id}
   server.route({
     method: 'DELETE',
-    path: '/todos/{id}',
+    path: '/todo/{id}',
     options: {
       description: 'Remove an item from the todo list',
       notes: 'Removes an item from the todo, referenced by the id using the URL parameter {id}',
