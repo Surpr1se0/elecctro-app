@@ -1,5 +1,9 @@
 import { db } from '../db/db.js';
-import { createTodoSchema, todoIdParamsSchema } from './validation.js';
+import { 
+  createTodoSchema,
+  listTodosQuerySchema, 
+  todoIdParamsSchema 
+} from './validation.js';
 
 // map from snake case to camelcase
 function mapTodoRow(row) {
@@ -53,10 +57,60 @@ export function setupRoutes(server) {
   });
 
 
+  // GET /todos?filter=<STATE>&orderBy=<FIELD>
+  server.route({
+    method: 'GET',
+    path: '/todos',
+    options: {
+      description: 'List the todo items',
+      notes: 'List the todo items considering the conditions imposed by the query parameters',
+      tags: ['api'],
+      validate: {
+        query: listTodosQuerySchema,
+        failAction: (request, h, err) => 
+          h
+          .response({error: 'Invalid query parameters', details: err.details})
+          .code(400)
+          .takeover()
+      }
+    },
+    handler: async(request, h) => {
+      const {filter, orderby} = request.query;
+
+      let q = db('todos');
+
+      if (filter === 'COMPLETE') {
+        q = q.where('state', 'COMPLETE'); 
+      } else if (filter === 'INCOMPLETE') {
+        q = q.where('state', 'INCOMPLETE');
+      }
+
+      const orderMap = {
+        DESCRIPTION: 'description',
+        CREATED_AT: 'created_at',
+        COMPLETED_AT: 'completed_at'
+      };
+
+      const orderColumn = orderMap[orderby] || 'created_at';
+
+      q = q.orderBy(orderColumn, 'asc', 'last');
+
+      const rows = await q.select(
+        'id', 
+        'state',
+        'description',
+        'created_at',
+        'completed_at'
+      );
+      return h.response(rows.map(mapTodoRow)).code(200);
+    }
+  });
+
+
   // DELETE -- /todo/{id}
   server.route({
     method: 'DELETE',
-    path: '/todo/{id}',
+    path: '/todos/{id}',
     options: {
       description: 'Remove an item from the todo list',
       notes: 'Removes an item from the todo, referenced by the id using the URL parameter {id}',
