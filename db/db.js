@@ -6,7 +6,7 @@ export const db = knex({
     host: '127.0.0.1',
     port: 5432,
     user: 'postgres',
-    password: 'password', // replace with .env
+    password: 'admin', // replace with .env
     database: 'postgres'
   }
 });
