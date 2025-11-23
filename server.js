@@ -1,9 +1,7 @@
 import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
 import Inert from "@hapi/inert";
 import Vision from "@hapi/vision";
 import HapiSwagger from "hapi-swagger";
-import HapiDBConnect from "hapi-plugin-pg";
 
 import { setupRoutes } from "./routes/routes.js"
 

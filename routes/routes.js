@@ -1,5 +1,5 @@
 import { db } from '../db/db.js';
-import { createTodoSchema } from './validation.js';
+import { createTodoSchema, todoIdParamsSchema } from './validation.js';
 
 // map from snake case to camelcase
 function mapTodoRow(row) {
@@ -11,7 +11,6 @@ function mapTodoRow(row) {
     completedAt: row.completed_at
   };
 }
-
 
 export function setupRoutes(server) {
   // GET (test) - /
@@ -54,4 +53,35 @@ export function setupRoutes(server) {
   });
 
 
+  // DELETE -- /todo/{id}
+  server.route({
+    method: 'DELETE',
+    path: '/todo/{id}',
+    options: {
+      description: 'Remove an item from the todo list',
+      notes: 'Removes an item from the todo, referenced by the id using the URL parameter {id}',
+      tags: ['api'],
+      validate: {
+        params: todoIdParamsSchema,
+        failAction: (request, h, err) => 
+          h
+            .response({error: 'Invalid id parameter', details: err.details})
+            .code(400)
+            .takeover()
+      }
+    },
+    handler: async(request, h) => {
+      const {id} = request.params; 
+
+      const deletedCount = await db('todos')
+        .where({id})
+        .delete();
+
+      if (deletedCount === 0){
+        return h.response({error: 'Item not found'}).code(404);
+      }
+
+      return h.response().code(204);
+    }
+  });
 }
