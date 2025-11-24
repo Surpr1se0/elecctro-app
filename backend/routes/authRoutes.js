@@ -1,7 +1,14 @@
 import bcrypt from "bcrypt";
 import Jwt from "@hapi/jwt";
 import { db } from '../db/db.js';
-import { registerSchema, loginSchema, updateUserSchema } from "./authValidation.js";
+import { 
+  registerSchema,
+  loginSchema, 
+  updateUserSchema, 
+  authResponseSchema, 
+  userResponseSchema,
+  logoutResponseSchema
+} from "./authValidation.js";
 
 const SALT_ROUNDS = 10;
 
@@ -22,6 +29,9 @@ export function registerAuthRoutes(server) {
             .code(400)
             .takeover();
         },
+      },
+      response: {
+        schema: authResponseSchema 
       },
       handler: async (request, h) => {
         const { email, password, name } = request.payload;
@@ -80,7 +90,10 @@ export function registerAuthRoutes(server) {
           .response({error: 'invalid login payload', details: err.details})
           .code(400)
           .takeover()
-      }
+      },
+      response: {
+        schema: authResponseSchema 
+      },
     },
     handler: async(request, h) => {
       const {email, password} = request.payload;
@@ -127,7 +140,10 @@ export function registerAuthRoutes(server) {
       description: 'Logout current user',
       notes: 'This route should invalidate the credentials of the authenticated user',
       tags: ['api'],
-      auth: 'my_jwt_strategy' 
+      auth: 'my_jwt_strategy',
+      response: {
+        schema: logoutResponseSchema
+      }
     },
     handler: async (request, h) => {
       // Server side has no action
@@ -145,7 +161,10 @@ export function registerAuthRoutes(server) {
       description: 'List the user details',
       notes: 'List the authenticated user details',
       tags: ['api'],
-      auth: 'my_jwt_strategy'
+      auth: 'my_jwt_strategy',
+      response: {
+        schema: userResponseSchema
+      }
     },
     handler: async (request, h) => {
       const {userId} = request.auth.credentials;
@@ -182,6 +201,9 @@ export function registerAuthRoutes(server) {
           .response({error: 'invalid payload', details: err.details})
           .code(400)
           .takeover()
+      },
+      response: {
+        schema: userResponseSchema
       }
     },
     handler: async(request, h) => {

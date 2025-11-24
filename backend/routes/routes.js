@@ -3,10 +3,12 @@ import {
   createTodoSchema,
   listTodosQuerySchema, 
   patchTodoSchema, 
-  todoIdParamsSchema 
+  todoIdParamsSchema,
+  todoResponseSchema,
+  todosArrayResponseSchema
 } from './validation.js';
 
-// map from snake case to camelcase
+// helper - map from snake case to camelcase
 function mapTodoRow(row) {
   return {
     id: row.id,
@@ -34,6 +36,9 @@ export function setupRoutes(server) {
           .response ({error: 'Invalid Payload', details: err.details})
           .code(400)
           .takeover()
+      },
+      response: {
+        schema: todoResponseSchema
       }
     },
     handler: async (request, h) => {
@@ -68,6 +73,9 @@ export function setupRoutes(server) {
           .response({error: 'Invalid query parameters', details: err.details})
           .code(400)
           .takeover()
+      },
+      response: {
+        schema: todosArrayResponseSchema
       }
     },
     handler: async(request, h) => {
@@ -121,6 +129,9 @@ export function setupRoutes(server) {
             .response({error: 'Invalid request', details: err.details})
             .code(400)
             .takeover()
+      },
+      response: {
+        schema: todoResponseSchema
       }
     },
     handler: async(request, h) => {
@@ -185,6 +196,7 @@ export function setupRoutes(server) {
             .code(400)
             .takeover()
       }
+      // No schema needed to validate response
     },
     handler: async(request, h) => {
       const {id} = request.params; 

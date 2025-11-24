@@ -12,8 +12,8 @@ const init = async () => {
     port: 3000,
     host: "localhost",
     routes: {
-      cors: {
-        origin: ["http://localhost:5173"], // react
+      cors: { // add cors for react@5173
+        origin: ["http://localhost:5173"],
         additionalHeaders: ["cache-control", "x-request-with"],
       },
     },
@@ -37,9 +37,8 @@ const init = async () => {
     },
   ]);
 
-  // Register JWT tokens
+  // Register JWT tokens & strategy
   await server.register(Jwt);
-
   server.auth.strategy("my_jwt_strategy", "jwt", {
     keys: "some_shared_secret",
     verify: {
@@ -52,7 +51,6 @@ const init = async () => {
       timeSkewSec: 15,
     },
     validate: (artifacts, request, h) => {
-      // Use validate: To create a function called after token validation.
       return {
         isValid: true,
         credentials: {

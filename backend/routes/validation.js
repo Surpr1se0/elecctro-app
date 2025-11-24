@@ -24,3 +24,17 @@ export const patchTodoSchema = Joi.object({
   state: Joi.string().valid('ALL', 'COMPLETE', 'INCOMPLETE'),
   description: Joi.string().min(1),
 }).or('state', 'description');
+
+
+// Validate Outputs schema
+export const todoResponseSchema = Joi.object({
+  id: Joi.number().required(),
+  state: Joi.string().valid('INCOMPLETE', 'COMPLETE'),
+  description: Joi.string().required(),
+  createdAt: Joi.date().iso().required(),
+  completedAt: Joi.date().iso().allow(null)
+});
+
+
+// Validate array outputs
+export const todosArrayResponseSchema = Joi.array().items(todoResponseSchema);
