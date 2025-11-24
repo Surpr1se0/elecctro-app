@@ -17,15 +17,6 @@ function mapTodoRow(row) {
 }
 
 export function setupRoutes(server) {
-  // GET (test) - /
-  server.route({
-    method: "GET",
-    path: "/",
-    handler: (request, response) => {
-      return "Hello World!";
-    },
-  });
-
   // POST -- /todos
   server.route({
     method: 'POST',

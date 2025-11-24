@@ -5,6 +5,7 @@ import Vision from "@hapi/vision";
 import HapiSwagger from "hapi-swagger";
 
 import { setupRoutes } from "./routes/routes.js";
+import { registerAuthRoutes } from "./routes/authRoutes.js";
 
 const init = async () => {
   const server = Hapi.server({
@@ -63,6 +64,7 @@ const init = async () => {
   });
 
   // Register API routes
+  registerAuthRoutes(server);
   setupRoutes(server);
 
   await server.start();
