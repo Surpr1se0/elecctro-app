@@ -126,8 +126,8 @@ export function registerAuthRoutes(server) {
     options: {
       description: 'Logout current user',
       notes: 'This route should invalidate the credentials of the authenticated user',
-      tag: ['api'],
-      auth: 'jwt' 
+      tags: ['api'],
+      auth: 'my_jwt_strategy' 
     },
     handler: async (request, h) => {
       // Server side has no action
@@ -145,7 +145,7 @@ export function registerAuthRoutes(server) {
       description: 'List the user details',
       notes: 'List the authenticated user details',
       tags: ['api'],
-      auth: 'jwt'
+      auth: 'my_jwt_strategy'
     },
     handler: async (request, h) => {
       const {userId} = request.auth.credentials;
@@ -167,4 +167,6 @@ export function registerAuthRoutes(server) {
   })
 
   // PATCH /me
+
+  
 }
