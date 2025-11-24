@@ -125,7 +125,8 @@ export function registerAuthRoutes(server) {
           user: {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            createdAt: user.created_at
           }
         }).code(200);
     }
