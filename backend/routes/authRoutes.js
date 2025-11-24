@@ -64,7 +64,61 @@ export function registerAuthRoutes(server) {
     },
   });
 
+
   // POST /login
+  server.route({
+    method: 'POST',
+    path: '/login',
+    options: {
+      description: 'Login a user',
+      notes: 'This route should receive a username and password, authenticate a user, and return a JWT token',
+      tags: ['api'],
+      validate: {
+        payload: loginSchema,
+        failAction: (request, h, err) => 
+          h
+          .response({error: 'invalid login payload', details: err.details})
+          .code(400)
+          .takeover()
+      }
+    },
+    handler: async(request, h) => {
+      const {email, password} = request.payload;
+
+      const user = await db('users').where({email}).first();
+      if(!user){
+        return h.response({error: 'invalid email or password'}).code(401);
+      }
+
+      const match = await bcrypt.compare(password, user.password_hash);
+      if (!match) {
+        return h.response({error: "Invalid email or password"}).code(401);
+      }
+
+      const token = Jwt.token.generate(
+        {
+          user: user.id,
+          email: user.email
+        },
+        {
+          key: 'some_shared_secret',
+          algorithm: 'HS256'
+        }
+      );
+
+      return h
+        .response({
+          token,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          }
+        }).code(200);
+    }
+  });
+
+
   // POST /logout
   // GET /me
   // PATCH /me
